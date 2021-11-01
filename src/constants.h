@@ -2,12 +2,21 @@
 
 #include <CONTROLLINO.h>
 
-#ifndef Constants_h
-#define Constants_h
+//max 25 bytes
+const char DEVICENAME[] = "sps_ffw1";
+const uint8_t MAC[] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x01};
+const uint8_t IP[] = {10, 0, 110, 240}; 
 
-const char DEVICENAME[20] = "sps_ffw1";
+const uint8_t MQTT_IP[] = {10, 0, 130, 10};
+const int     MQTT_PORT = 1883;
+const char    MQTT_USER[] = "";
+const char    MQTT_PASS[] = "";
 
 // GATEs ==>
+
+const int GATE_movingTime = 15000;
+const int GATE_warningTime = 5000;
+const int GATE_cmdTime = 1000;
 
 // CMD_UP CMD_DOWN CMD_STOP CMD_WARN STATE_UP STATE_DOWN
 const uint8_t GATE_1_CONFIG[6] = {CONTROLLINO_R6,CONTROLLINO_R7,CONTROLLINO_D0,CONTROLLINO_R1,CONTROLLINO_A0,CONTROLLINO_A1};
@@ -28,5 +37,3 @@ const uint8_t LIGHT_OUTSIDE_OUT = CONTROLLINO_D23;
 const uint8_t LIGHT_OUTSIDE_PUSH = 0;
 
 // <== LIGHT
-
-#endif
