@@ -85,7 +85,7 @@ class Gate {
         //Gate is and was not on the limit switches
         if ((curent_state_up == 0 && this->last_state_up == 0 && curent_state_down == 0 && this->last_state_down == 0)) {
             //Gate moving to long, without reaching a limit switch.
-            if (this->moving_state && (millis() - this->moving_start > 3000)) {
+            if (this->moving_state && (millis() - this->moving_start > GATE_MOVING_TIME)) {
                 this->moving_state = false;
                 client.publish(getMQTTPath("state"), "stopped");
                 log("MQTT Publish: stopped");
@@ -190,9 +190,9 @@ class Gate {
     void loopCmd() {
         if (cmd_q.isEmpty())
             return;
-        if (cmd_start != 0 && millis() - cmd_start < GATE_cmdTime)
+        if (cmd_start != 0 && millis() - cmd_start < GATE_CMD_DELAY)
             return;
-        if (cmd_q.first() == warn_0 && millis() - cmd_start < GATE_warningTime)
+        if (cmd_q.first() == warn_0 && millis() - cmd_start < GATE_WARNING_TIME)
             return;
 
         switch (cmd_q.shift()) {

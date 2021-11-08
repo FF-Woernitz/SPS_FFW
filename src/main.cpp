@@ -6,6 +6,7 @@
 #include <main.h>
 
 #include <gate.cpp>
+#include <light.cpp>
 
 EthernetClient net;
 MQTTClient client;
