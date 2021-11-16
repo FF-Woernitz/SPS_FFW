@@ -96,14 +96,14 @@ class Gate {
         if (curent_state_up == 1 && this->last_state_up == 0) {
             this->moving_state = false;
             client.publish(getMQTTPath("state"), "open");
-            log("MQTT Publish: stopped");
+            log("MQTT Publish: open");
         }
 
         //Now closed
         if (curent_state_down == 1 && this->last_state_down == 0) {
             this->moving_state = false;
             client.publish(getMQTTPath("state"), "closed");
-            log("MQTT Publish: stopped");
+            log("MQTT Publish: closed");
         }
 
         //Now closing
@@ -111,7 +111,7 @@ class Gate {
             this->moving_state = true;
             this->moving_start = millis();
             client.publish(getMQTTPath("state"), "closing");
-            log("MQTT Publish: stopped");
+            log("MQTT Publish: closing");
         }
 
         //Now opening
@@ -119,7 +119,7 @@ class Gate {
             this->moving_state = true;
             this->moving_start = millis();
             client.publish(getMQTTPath("state"), "opening");
-            log("MQTT Publish: stopped");
+            log("MQTT Publish: opening");
         }
 
         this->last_state_up = curent_state_up;
