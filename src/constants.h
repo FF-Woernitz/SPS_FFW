@@ -1,6 +1,6 @@
 #pragma once
 
-#include <CONTROLLINO.h>
+#include <Controllino.h>
 
 //max 25 bytes
 const char DEVICENAME[] = "sps_ffw1";
