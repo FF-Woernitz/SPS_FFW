@@ -1,16 +1,7 @@
 #pragma once
 
 #include <Controllino.h>
-
-//max 25 bytes
-const char DEVICENAME[] = "sps_ffw1";
-const uint8_t MAC[] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x01};
-const uint8_t IP[] = {10, 0, 110, 240}; 
-
-const uint8_t MQTT_IP[] = {10, 0, 130, 10};
-const int     MQTT_PORT = 1883;
-const char    MQTT_USER[] = "";
-const char    MQTT_PASS[] = "";
+#include <secrets.h>
 
 // GATEs ==>
 
