@@ -77,7 +77,7 @@ class LightOutside {
     }
 
     void off() {
-        if (state() && internalState) {
+        if (/*state() && */internalState) {  //Do not check external state, as not in use yet  
             digitalWrite(this->pin_out, 0);
             internalState = false;
             log("Output off");
@@ -85,7 +85,7 @@ class LightOutside {
     }
 
     void on() {
-        if (!state() && !internalState) {
+        if (/*!state() && */!internalState) {   //Do not check external state, as not in use yet
             digitalWrite(this->pin_out, 1);
             internalState = true;
             log("Output on");
