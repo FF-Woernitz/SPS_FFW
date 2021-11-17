@@ -173,8 +173,10 @@ class Gate {
     }
 
     void warning() {
-        cmd_q.push(warn_1);
-        cmd_q.push(warn_0);
+        if (GATE_WARNING_TIME != 0) {
+            cmd_q.push(warn_1);
+            cmd_q.push(warn_0);
+        }
     }
 
     void resetCmd() {
