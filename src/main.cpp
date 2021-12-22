@@ -86,6 +86,10 @@ void messageReceived(String &topic, String &payload) {
 
 void setup() {
     Serial.begin(115200);
+    Serial.println("Name: " + (String)DEVICENAME);
+    Serial.println("Version: " + VERSION);
+    Serial.println("Builddate: " + (String) STR(BUILD_DATE));
+
     Ethernet.begin(MAC, IPAddress(IP));
 
     client.begin(IPAddress(MQTT_IP), MQTT_PORT, net);

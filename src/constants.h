@@ -4,6 +4,7 @@
 
 //max 25 bytes
 const char    DEVICENAME[] = "sps_ffw1";
+const String  VERSION = "1.1";
 const uint8_t MAC[] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x01};
 const uint8_t IP[] = {10, 0, 110, 240}; 
 
