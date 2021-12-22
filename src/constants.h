@@ -3,11 +3,13 @@
 #include <Controllino.h>
 #include <secrets.h>
 
-// GATEs ==>
 
-const int GATE_MOVING_TIME = 15000;
-const int GATE_WARNING_TIME = 0;
-const int GATE_CMD_DELAY = 1000;
+const String  VERSION = "1.1";
+
+// GATEs ==>
+const int     GATE_MOVING_TIME = 15000;
+const int     GATE_WARNING_TIME = 0;
+const int     GATE_CMD_DELAY = 1000;
 
 // CMD_UP CMD_DOWN CMD_STOP CMD_WARN STATE_UP STATE_DOWN
 const uint8_t GATE_1_CONFIG[6] = {CONTROLLINO_R6,CONTROLLINO_R7,CONTROLLINO_D0,CONTROLLINO_R1,CONTROLLINO_A0,CONTROLLINO_A1};
