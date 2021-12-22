@@ -148,8 +148,8 @@ class Gate {
         return getMQTTPath("");
     }
 
-    void log(String text){
-        Serial.println("Gate " + (String) this->id + ": " + text);
+    void log(String text) {
+        Serial.println("Gate " + (String)this->id + ": " + text);
     }
 
     void up() {

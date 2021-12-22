@@ -6,7 +6,6 @@
 #include <main.h>
 
 #include <gate.cpp>
-#include <light_main.cpp>
 #include <light_outside.cpp>
 
 EthernetClient net;
@@ -17,7 +16,6 @@ Gate gate3(3, GATE_3_CONFIG);
 Gate gate4(4, GATE_4_CONFIG);
 Gate gate5(5, GATE_5_CONFIG);
 
-LightMain light_main("main", LIGHT_MAIN_CONFIG);
 LightOutside light_outside("outside", LIGHT_OUTSIDE_CONFIG);
 
 unsigned long lastMillis = 0;
@@ -60,7 +58,6 @@ void initMqtt() {
     gate4.setup(client);
     gate5.setup(client);
 
-    light_main.setup(client);
     light_outside.setup(client);
 }
 
@@ -83,8 +80,6 @@ void messageReceived(String &topic, String &payload) {
         gate4.onMessage(payload);
     else if (device == "gate5")
         gate5.onMessage(payload);
-    else if (device == "light_main")
-        light_main.onMessage(payload);
     else if (device == "light_outside")
         light_outside.onMessage(payload);
 }
@@ -108,6 +103,5 @@ void loop() {
     gate4.loop(client);
     gate5.loop(client);
 
-    light_main.loop(client);
     light_outside.loop(client);
 }

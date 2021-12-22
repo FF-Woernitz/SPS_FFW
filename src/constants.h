@@ -3,7 +3,7 @@
 #include <Controllino.h>
 
 //max 25 bytes
-const char DEVICENAME[] = "sps_ffw1";
+const char    DEVICENAME[] = "sps_ffw1";
 const uint8_t MAC[] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x01};
 const uint8_t IP[] = {10, 0, 110, 240}; 
 
@@ -29,6 +29,5 @@ const uint8_t GATE_5_CONFIG[6] = {CONTROLLINO_R14,CONTROLLINO_R15,CONTROLLINO_D4
 
 // LIGHT ==>
 // PIN_IN PIN_OUT MODE
-const uint8_t LIGHT_MAIN_CONFIG[2] = {CONTROLLINO_I16, CONTROLLINO_D22};
-const uint8_t LIGHT_OUTSIDE_CONFIG[2] = {CONTROLLINO_I17, CONTROLLINO_D23};
+const uint8_t LIGHT_OUTSIDE_CONFIG[2] = {CONTROLLINO_I18, CONTROLLINO_D23};
 // <== LIGHT

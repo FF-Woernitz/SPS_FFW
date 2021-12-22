@@ -7,10 +7,10 @@ class LightOutside {
     int pin_in;
     int pin_out;
 
-    bool lastState;
+    bool state;
+    bool nextState;
 
-    bool internalState;
-    bool internalStateLast;
+    bool lastButtonState;
 
    public:
     LightOutside(const String id, const uint8_t *config) {
@@ -25,37 +25,32 @@ class LightOutside {
         pinMode(this->pin_in, INPUT);
         pinMode(this->pin_out, OUTPUT);
         digitalWrite(this->pin_out, 0);
-        internalState = false;
+        state = false;
+        nextState = false;
 
         client.publish(getMQTTPath("cmd"), "-");
         client.subscribe(getMQTTPath("cmd"));
+        log("State: off");
+        client.publish(getMQTTPath("state"), "off");
 
-        lastState = state();
-        client.publish(getMQTTPath("internalstate"), "off");
-        log("State: " + (lastState) ? "on" : "off");
-
-        
-        client.publish(getMQTTPath("state"), (lastState) ? "on" : "off");
+        lastButtonState = getState();
     }
 
     void loop(MQTTClient &client) {
-        if (lastState != state()) {
-            lastState = state();
-            client.publish(getMQTTPath("state"), (lastState) ? "on" : "off");
-            if (lastState) {
-                log("State: on");
-            } else {
-                log("State: off");
-            }
+        if (lastButtonState != getState()) {
+            lastButtonState = getState();
+            log("Button pressed");
+            nextState = !state;
         }
-        
-        if (internalState != internalStateLast) {
-            internalStateLast =internalState;
-            client.publish(getMQTTPath("internalstate"), (internalState) ? "on" : "off");
-            if (lastState) {
-                log("internalState: on");
+
+        if (state != nextState) {
+            state = nextState;
+            client.publish(getMQTTPath("state"), (state) ? "on" : "off");
+            log("State: " + (state) ? "on" : "off");
+            if (state) {
+                digitalWrite(this->pin_out, 1);
             } else {
-                log("internalState: off");
+                digitalWrite(this->pin_out, 0);
             }
         }
     }
@@ -64,32 +59,16 @@ class LightOutside {
         log("MQTT command: " + payload);
 
         if (payload.equalsIgnoreCase("ON"))
-            on();
+            nextState = true;
         else if (payload.equalsIgnoreCase("OFF"))
-            off();
+            nextState = false;
         else
             log("Unknown MQTT command!");
     }
 
    private:
-    bool state() {
+    bool getState() {
         return (bool)digitalRead(this->pin_in);
-    }
-
-    void off() {
-        if (state() && internalState) {
-            digitalWrite(this->pin_out, 0);
-            internalState = false;
-            log("Output off");
-        }
-    }
-
-    void on() {
-        if (!state() && !internalState) {
-            digitalWrite(this->pin_out, 1);
-            internalState = true;
-            log("Output on");
-        }
     }
 
     String getMQTTPath(String suffix) {
