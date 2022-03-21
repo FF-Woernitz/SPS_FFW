@@ -7,6 +7,7 @@
 
 #include <gate.cpp>
 #include <light_outside.cpp>
+#include <input.cpp>
 
 EthernetClient net;
 MQTTClient client;
@@ -17,6 +18,9 @@ Gate gate4(4, GATE_4_CONFIG);
 Gate gate5(5, GATE_5_CONFIG);
 
 LightOutside light_outside("outside", LIGHT_OUTSIDE_CONFIG);
+
+Input input_light_inside_on("light_inside_on", INPUT_LIGHT_INSIDE_ON);
+Input input_light_inside_off("light_inside_off", INPUT_LIGHT_INSIDE_OFF);
 
 unsigned long lastMillis = 0;
 
@@ -59,6 +63,9 @@ void initMqtt() {
     gate5.setup(client);
 
     light_outside.setup(client);
+
+    input_light_inside_on.setup(client);
+    input_light_inside_off.setup(client);
 }
 
 void messageReceived(String &topic, String &payload) {
@@ -108,4 +115,7 @@ void loop() {
     gate5.loop(client);
 
     light_outside.loop(client);
+
+    input_light_inside_on.loop(client);
+    input_light_inside_off.loop(client);
 }
