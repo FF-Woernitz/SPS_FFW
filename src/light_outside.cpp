@@ -1,6 +1,8 @@
 #include <MQTT.h>
 #include <constants.h>
 
+#include <Bounce2.h>
+
 class LightOutside
 {
 private:
@@ -12,6 +14,8 @@ private:
     bool nextState;
 
     bool lastButtonState;
+
+    Bounce b = Bounce();
 
 public:
     LightOutside(const String id, const uint8_t *config)
@@ -25,7 +29,10 @@ public:
     void setup(MQTTClient &client)
     {
         log("Setup");
-        pinMode(this->pin_in, INPUT);
+
+        b.attach(this->pin_in, INPUT);
+        b.interval(50);
+
         pinMode(this->pin_out, OUTPUT);
         digitalWrite(this->pin_out, 0);
         state = false;
@@ -41,28 +48,27 @@ public:
 
     void loop(MQTTClient &client)
     {
-        if (lastButtonState != getInput())
+        b.update();
+        if (b.rose())
         {
-            lastButtonState = getInput();
-            if (lastButtonState)
-            {
-                log("Button pressed");
-                nextState = !state;
-            }
+            log("Button pressed");
+            nextState = !state;
         }
 
         if (state != nextState)
         {
             state = nextState;
-            client.publish(getMQTTPath("state"), (state) ? "on" : "off");
-            log((state) ? "on" : "off");
             if (state)
             {
+                client.publish(getMQTTPath("state"), "on");
                 digitalWrite(this->pin_out, 1);
+                log("State: on");
             }
             else
             {
+                client.publish(getMQTTPath("state"), "off");
                 digitalWrite(this->pin_out, 0);
+                log("State: off");
             }
         }
     }
