@@ -52,12 +52,14 @@ class Input {
     }
 
     void publishState(MQTTClient &client) {
-        client.publish(getMQTTPath("state"), (state) ? "on" : "off");
-        log("State: " + (state) ? "on" : "off");
         if (state) {
             digitalWrite(this->pin_out, 1);
+            client.publish(getMQTTPath("state"), "on", true, 0);
+            log("State: on");
         } else {
             digitalWrite(this->pin_out, 0);
+            client.publish(getMQTTPath("state"), "off", true, 0);
+            log("State: off");
         }
     }
 };

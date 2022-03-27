@@ -60,11 +60,9 @@ class Gate {
         this->last_state_down = digitalRead(pin_state_down);
 
         if (this->last_state_down == 1) {
-            client.publish(getMQTTPath("state"), "closed");
-            log("MQTT Publish: closed");
+            publishState(client, "closed");
         } else {
-            client.publish(getMQTTPath("state"), "open");
-            log("MQTT Publish: open");
+            publishState(client, "open");
         }
     }
 
@@ -84,39 +82,35 @@ class Gate {
             //Gate moving to long, without reaching a limit switch.
             if (this->moving_state && (millis() - this->moving_start > GATE_MOVING_TIME)) {
                 this->moving_state = false;
-                client.publish(getMQTTPath("state"), "open");
-                log("MQTT Publish: open (due timeout)");
+                log("Timeout. Pubish open");
+                publishState(client, "open");
             }
         }
 
         //Now opened
         if (curent_state_up == 1 && this->last_state_up == 0) {
             this->moving_state = false;
-            client.publish(getMQTTPath("state"), "open");
-            log("MQTT Publish: open");
+            publishState(client, "open");
         }
 
         //Now closed
         if (curent_state_down == 1 && this->last_state_down == 0) {
             this->moving_state = false;
-            client.publish(getMQTTPath("state"), "closed");
-            log("MQTT Publish: closed");
+            publishState(client, "closed");
         }
 
         //Now closing
         if (curent_state_up == 0 && this->last_state_up == 1) {
             this->moving_state = true;
             this->moving_start = millis();
-            client.publish(getMQTTPath("state"), "closing");
-            log("MQTT Publish: closing");
+            publishState(client, "closing");
         }
 
         //Now opening
         if (curent_state_down == 0 && this->last_state_down == 1) {
             this->moving_state = true;
             this->moving_start = millis();
-            client.publish(getMQTTPath("state"), "opening");
-            log("MQTT Publish: opening");
+            publishState(client, "opening");
         }
 
         this->last_state_up = curent_state_up;
@@ -147,6 +141,11 @@ class Gate {
 
     void log(String text) {
         Serial.println("Gate " + (String)this->id + ": " + text);
+    }
+
+    void publishState(MQTTClient &client, String payload){
+        client.publish(getMQTTPath("state"), payload, true, 0);
+        log("MQTT Publish: " + payload);
     }
 
     void up() {

@@ -40,8 +40,7 @@ public:
 
         client.publish(getMQTTPath("cmd"), "-");
         client.subscribe(getMQTTPath("cmd"));
-        log("State: off");
-        client.publish(getMQTTPath("state"), "off");
+        publishState(client, "off");
 
         lastButtonState = getInput();
     }
@@ -60,15 +59,13 @@ public:
             state = nextState;
             if (state)
             {
-                client.publish(getMQTTPath("state"), "on");
+                publishState(client, "on");
                 digitalWrite(this->pin_out, 1);
-                log("State: on");
             }
             else
             {
-                client.publish(getMQTTPath("state"), "off");
+                publishState(client, "off");
                 digitalWrite(this->pin_out, 0);
-                log("State: off");
             }
         }
     }
@@ -104,5 +101,10 @@ private:
     void log(String text)
     {
         Serial.println("Light " + this->id + ": " + text);
+    }
+    
+    void publishState(MQTTClient &client, String payload){
+        client.publish(getMQTTPath("state"), payload, true, 0);
+        log("MQTT Publish: " + payload);
     }
 };
