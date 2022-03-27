@@ -59,15 +59,12 @@ class Gate {
         this->last_state_up = digitalRead(pin_state_up);
         this->last_state_down = digitalRead(pin_state_down);
 
-        if (this->last_state_up == 1) {
-            client.publish(getMQTTPath("state"), "open");
-            log("MQTT Publish: open");
-        } else if (this->last_state_down == 1) {
+        if (this->last_state_down == 1) {
             client.publish(getMQTTPath("state"), "closed");
             log("MQTT Publish: closed");
         } else {
-            client.publish(getMQTTPath("state"), "stopped");
-            log("MQTT Publish: stopped");
+            client.publish(getMQTTPath("state"), "open");
+            log("MQTT Publish: open");
         }
     }
 
@@ -87,8 +84,8 @@ class Gate {
             //Gate moving to long, without reaching a limit switch.
             if (this->moving_state && (millis() - this->moving_start > GATE_MOVING_TIME)) {
                 this->moving_state = false;
-                client.publish(getMQTTPath("state"), "stopped");
-                log("MQTT Publish: stopped");
+                client.publish(getMQTTPath("state"), "open");
+                log("MQTT Publish: open (due timeout)");
             }
         }
 
