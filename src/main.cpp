@@ -30,7 +30,7 @@ bool connect() {
 
         static char lwt[30] = {"\0"};
         strncpy(lwt, DEVICENAME, sizeof(lwt) - 1);
-        strncat(lwt, "/state", sizeof(lwt) - strlen(lwt) - 1);
+        strncat(lwt, "/status", sizeof(lwt) - strlen(lwt) - 1);
         client.setWill(lwt, "offline", true, 1);
 
         client.setKeepAlive(10);
