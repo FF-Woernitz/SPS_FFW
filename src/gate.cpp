@@ -149,12 +149,20 @@ class Gate {
     }
 
     void up() {
+        if(this->last_state_up == 1){
+            log("Gate already up. Ignoring...");
+            return;
+        }
         stop(true);
         cmd_q.push(up_1);
         cmd_q.push(up_0);
     }
 
     void down() {
+        if(this->last_state_down == 1){
+            log("Gate already down. Ignoring...");
+            return;
+        }
         resetCmd();
         warning();
         stop(false);
