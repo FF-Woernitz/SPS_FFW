@@ -163,9 +163,8 @@ class Gate {
             log("Gate already down. Ignoring...");
             return;
         }
-        resetCmd();
+        stop(true);
         warning();
-        stop(false);
         cmd_q.push(down_1);
         cmd_q.push(down_0);
     }
@@ -180,6 +179,7 @@ class Gate {
         if (GATE_WARNING_TIME != 0) {
             cmd_q.push(warn_1);
             cmd_q.push(warn_0);
+            stop(true);
         }
     }
 

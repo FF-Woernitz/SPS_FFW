@@ -3,7 +3,7 @@
 
 #include <Bounce2.h>
 
-class LightOutside
+class LightButton
 {
 private:
     String id;
@@ -18,7 +18,7 @@ private:
     Bounce b = Bounce();
 
 public:
-    LightOutside(const String id, const uint8_t *config)
+    LightButton(const String id, const uint8_t *config)
     {
         this->id = id;
 

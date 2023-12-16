@@ -6,7 +6,7 @@
 #include <main.h>
 
 #include <gate.cpp>
-#include <light_outside.cpp>
+#include <light_button.cpp>
 #include <input.cpp>
 
 EthernetClient net;
@@ -17,16 +17,22 @@ Gate gate3(3, GATE_3_CONFIG);
 Gate gate4(4, GATE_4_CONFIG);
 Gate gate5(5, GATE_5_CONFIG);
 
-LightOutside light_outside("outside", LIGHT_OUTSIDE_CONFIG);
+LightButton light_outside("outside", LIGHT_OUTSIDE_CONFIG);
 
 Input input_light_inside_on("light_inside_on", INPUT_LIGHT_INSIDE_ON);
 Input input_light_inside_off("light_inside_off", INPUT_LIGHT_INSIDE_OFF);
 
-unsigned long lastMillis = 0;
+unsigned long lastConnectTry = 0;
 
-bool connect() {
+
+bool connect(bool initialConnect) {
     if (!client.connected()) {
-        Serial.println("connecting...");
+        if(!initialConnect && millis()-lastConnectTry > 30000){
+            return false;
+        }
+        lastConnectTry = millis();
+
+        Serial.print("connecting...");
 
         static char lwt[30] = {"\0"};
         strncpy(lwt, DEVICENAME, sizeof(lwt) - 1);
@@ -41,6 +47,7 @@ bool connect() {
             Serial.println("connected!");
             return true;
         } else {
+            Serial.print("failed!");
             return false;
         }
     }
@@ -50,8 +57,9 @@ bool connect() {
 void initConnect() {
     for (int i = 0; i < 10; i++) {
         Serial.println("Inital connection. Try " + (String)i + "/10");
-        if (connect())
+        if (connect(true)){
             break;
+        }
     }
 }
 
@@ -106,7 +114,7 @@ void setup() {
 }
 
 void loop() {
-    connect();
+    connect(false);
     client.loop();
     gate1.loop(client);
     gate2.loop(client);
