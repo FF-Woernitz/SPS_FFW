@@ -27,12 +27,7 @@ unsigned long lastConnectTry = 0;
 bool connect(bool initialConnect) {
     if (!client.connected()) {
         #ifdef DEBUG
-            Serial.print("RE | ");
-            Serial.print((String) millis());
-            Serial.print(" | ");
-            Serial.print((String) lastConnectTry);
-            Serial.print(" | ");
-            Serial.println((String) (millis() - lastConnectTry));
+            Serial.println("RE | " + (String) millis() + " | " + (String) lastConnectTry + " | " + (String) (millis() - lastConnectTry));
         #endif
         if (!initialConnect && (millis() - lastConnectTry) < 5000) {
             return false;
