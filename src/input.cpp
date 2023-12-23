@@ -1,3 +1,4 @@
+#include <Bounce2.h>
 #include <MQTT.h>
 #include <constants.h>
 
@@ -7,30 +8,34 @@ class Input {
     int pin_in;
     int pin_out;
 
-    bool state;
-    bool lastInputState;
+    Bounce b = Bounce();
 
    public:
-    Input(const String id, const uint8_t pin_in) {
+    Input(const String id, const uint8_t *config) {
         this->id = id;
-
-        this->pin_in = pin_in;
+        this->pin_in = config[0];
     }
 
     void setup(MQTTClient &client) {
         log("Setup");
-        pinMode(this->pin_in, INPUT);
 
-        state = lastInputState = getState();
-        publishState(client);
+        b.attach(this->pin_in, INPUT);
+        b.interval(50);
+
+        if (getState()) {
+            publishState(client, "on");
+        } else {
+            publishState(client, "off");
+        }
     }
 
     void loop(MQTTClient &client) {
-        state = getState();
-
-        if (state != lastInputState) {
-            lastInputState = state;
-            publishState(client);
+        b.update();
+        if (b.rose()) {
+            publishState(client, "on");
+        }
+        if (b.fell()) {
+            publishState(client, "off");
         }
     }
 
@@ -51,15 +56,8 @@ class Input {
         Serial.println("Input " + this->id + ": " + text);
     }
 
-    void publishState(MQTTClient &client) {
-        if (state) {
-            digitalWrite(this->pin_out, 1);
-            client.publish(getMQTTPath("state"), "on", true, 0);
-            log("State: on");
-        } else {
-            digitalWrite(this->pin_out, 0);
-            client.publish(getMQTTPath("state"), "off", true, 0);
-            log("State: off");
-        }
+    void publishState(MQTTClient &client, String payload) {
+        client.publish(getMQTTPath("state"), payload, true, 0);
+        log("MQTT Publish: " + payload);
     }
 };
