@@ -6,27 +6,26 @@ class Input {
    private:
     String id;
     int pin_in;
-    int pin_out;
 
     Bounce b = Bounce();
 
    public:
-    Input(const String id, const uint8_t *config) {
+    Input(const String id, const uint8_t pin_in) {
         this->id = id;
-        this->pin_in = config[0];
+        this->pin_in = pin_in;
     }
 
-    void setup(MQTTClient &client) {
+    void setup() {
         log("Setup");
 
         b.attach(this->pin_in, INPUT);
         b.interval(50);
+    }
 
-        if (getState()) {
-            publishState(client, "on");
-        } else {
-            publishState(client, "off");
-        }
+    void setupMQTT(MQTTClient &client) {
+        log("setupMQTT");
+
+        publishState(client, b.read() ? "on" : "off");
     }
 
     void loop(MQTTClient &client) {

@@ -26,7 +26,15 @@ unsigned long lastConnectTry = 0;
 
 bool connect(bool initialConnect) {
     if (!client.connected()) {
-        if (!initialConnect && millis() - lastConnectTry > 30000) {
+        #ifdef DEBUG
+            Serial.print("RE | ");
+            Serial.print((String) millis());
+            Serial.print(" | ");
+            Serial.print((String) lastConnectTry);
+            Serial.print(" | ");
+            Serial.println((String) (millis() - lastConnectTry));
+        #endif
+        if (!initialConnect && (millis() - lastConnectTry) < 5000) {
             return false;
         }
         lastConnectTry = millis();
@@ -41,12 +49,12 @@ bool connect(bool initialConnect) {
         client.setKeepAlive(10);
         client.connect(DEVICENAME, MQTT_USER, MQTT_PASS);
         if (client.connected()) {
-            initMqtt();
             client.publish(lwt, "online", true, 1);
             Serial.println("connected!");
+            initMqtt();
             return true;
         } else {
-            Serial.print("failed!");
+            Serial.println("failed!");
             return false;
         }
     }
@@ -63,16 +71,16 @@ void initConnect() {
 }
 
 void initMqtt() {
-    gate1.setup(client);
-    gate2.setup(client);
-    gate3.setup(client);
-    gate4.setup(client);
-    gate5.setup(client);
+    gate1.setupMQTT(client);
+    gate2.setupMQTT(client);
+    gate3.setupMQTT(client);
+    gate4.setupMQTT(client);
+    gate5.setupMQTT(client);
 
-    light_outside.setup(client);
+    light_outside.setupMQTT(client);
 
-    input_light_inside_on.setup(client);
-    input_light_inside_off.setup(client);
+    input_light_inside_on.setupMQTT(client);
+    input_light_inside_off.setupMQTT(client);
 }
 
 void messageReceived(String &topic, String &payload) {
@@ -108,6 +116,17 @@ void setup() {
 
     client.begin(IPAddress(MQTT_IP), MQTT_PORT, net);
     client.onMessage(messageReceived);
+
+    gate1.setup();
+    gate2.setup();
+    gate3.setup();
+    gate4.setup();
+    gate5.setup();
+
+    light_outside.setup();
+
+    input_light_inside_on.setup();
+    input_light_inside_off.setup();
 
     initConnect();
 }

@@ -40,7 +40,7 @@ class Gate {
         this->pin_state_down = config[5];
     }
 
-    void setup(MQTTClient &client) {
+    void setup() {
         log("SETUP");
         pinMode(this->pin_cmd_up, OUTPUT);
         pinMode(this->pin_cmd_down, OUTPUT);
@@ -49,7 +49,10 @@ class Gate {
         pinMode(this->pin_state_up, INPUT);
         pinMode(this->pin_state_down, INPUT);
         resetCmd();
+    }
 
+    void setupMQTT(MQTTClient &client) {
+        log("setupMQTT");
         // setupAutodiscovery(client);
         Serial.println("Autodiscovery for gates is disabled!");
 

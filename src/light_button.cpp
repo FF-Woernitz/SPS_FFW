@@ -11,8 +11,6 @@ class LightButton {
     bool state;
     bool nextState;
 
-    bool lastButtonState;
-
     Bounce b = Bounce();
 
    public:
@@ -23,7 +21,7 @@ class LightButton {
         this->pin_out = config[1];
     }
 
-    void setup(MQTTClient &client) {
+    void setup() {
         log("Setup");
 
         b.attach(this->pin_in, INPUT);
@@ -33,12 +31,14 @@ class LightButton {
         digitalWrite(this->pin_out, 0);
         state = false;
         nextState = false;
+    }
+
+    void setupMQTT(MQTTClient &client) {
+        log("setupMQTT");
 
         client.publish(getMQTTPath("cmd"), "-");
         client.subscribe(getMQTTPath("cmd"));
-        publishState(client, "off");
-
-        lastButtonState = getInput();
+        publishState(client, state ? "on" : "off");
     }
 
     void loop(MQTTClient &client) {
@@ -50,13 +50,8 @@ class LightButton {
 
         if (state != nextState) {
             state = nextState;
-            if (state) {
-                publishState(client, "on");
-                digitalWrite(this->pin_out, 1);
-            } else {
-                publishState(client, "off");
-                digitalWrite(this->pin_out, 0);
-            }
+            publishState(client, state ? "on" : "off");
+            digitalWrite(this->pin_out, state ? 1 : 0);
         }
     }
 
@@ -72,7 +67,7 @@ class LightButton {
     }
 
    private:
-    bool getInput() {
+    bool getState() {
         return (bool)digitalRead(this->pin_in);
     }
 

@@ -3,6 +3,8 @@
 #include <Controllino.h>
 #include <secrets.h>
 
+// #define DEBUG
+
 const String VERSION = "1.2";
 
 // GATEs ==>
