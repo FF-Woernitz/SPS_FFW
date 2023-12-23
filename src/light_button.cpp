@@ -1,11 +1,9 @@
+#include <Bounce2.h>
 #include <MQTT.h>
 #include <constants.h>
 
-#include <Bounce2.h>
-
-class LightButton
-{
-private:
+class LightButton {
+   private:
     String id;
     int pin_in;
     int pin_out;
@@ -17,17 +15,15 @@ private:
 
     Bounce b = Bounce();
 
-public:
-    LightButton(const String id, const uint8_t *config)
-    {
+   public:
+    LightButton(const String id, const uint8_t *config) {
         this->id = id;
 
         this->pin_in = config[0];
         this->pin_out = config[1];
     }
 
-    void setup(MQTTClient &client)
-    {
+    void setup(MQTTClient &client) {
         log("Setup");
 
         b.attach(this->pin_in, INPUT);
@@ -45,33 +41,26 @@ public:
         lastButtonState = getInput();
     }
 
-    void loop(MQTTClient &client)
-    {
+    void loop(MQTTClient &client) {
         b.update();
-        if (b.rose())
-        {
+        if (b.rose()) {
             log("Button pressed");
             nextState = !state;
         }
 
-        if (state != nextState)
-        {
+        if (state != nextState) {
             state = nextState;
-            if (state)
-            {
+            if (state) {
                 publishState(client, "on");
                 digitalWrite(this->pin_out, 1);
-            }
-            else
-            {
+            } else {
                 publishState(client, "off");
                 digitalWrite(this->pin_out, 0);
             }
         }
     }
 
-    void onMessage(String &payload)
-    {
+    void onMessage(String &payload) {
         log("MQTT command: " + payload);
 
         if (payload.equalsIgnoreCase("ON"))
@@ -82,28 +71,24 @@ public:
             log("Unknown MQTT command!");
     }
 
-private:
-    bool getInput()
-    {
+   private:
+    bool getInput() {
         return (bool)digitalRead(this->pin_in);
     }
 
-    String getMQTTPath(String suffix)
-    {
+    String getMQTTPath(String suffix) {
         return String(DEVICENAME) + "/light_" + (String)this->id + "/" + suffix;
     }
 
-    String getMQTTPath()
-    {
+    String getMQTTPath() {
         return getMQTTPath("");
     }
 
-    void log(String text)
-    {
+    void log(String text) {
         Serial.println("Light " + this->id + ": " + text);
     }
-    
-    void publishState(MQTTClient &client, String payload){
+
+    void publishState(MQTTClient &client, String payload) {
         client.publish(getMQTTPath("state"), payload, true, 0);
         log("MQTT Publish: " + payload);
     }

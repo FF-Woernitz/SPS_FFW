@@ -50,7 +50,7 @@ class Gate {
         pinMode(this->pin_state_down, INPUT);
         resetCmd();
 
-        //setupAutodiscovery(client);
+        // setupAutodiscovery(client);
         Serial.println("Autodiscovery for gates is disabled!");
 
         client.publish(getMQTTPath("cmd"), "-");
@@ -72,14 +72,14 @@ class Gate {
         int curent_state_up = digitalRead(pin_state_up);
         int curent_state_down = digitalRead(pin_state_down);
 
-        //exit fast. Gate still on the limit switches.
+        // exit fast. Gate still on the limit switches.
         if ((curent_state_up == 1 && this->last_state_up == 1) || (curent_state_down == 1 && this->last_state_down == 1)) {
             return;
         }
 
-        //Gate is and was not on the limit switches
+        // Gate is and was not on the limit switches
         if ((curent_state_up == 0 && this->last_state_up == 0 && curent_state_down == 0 && this->last_state_down == 0)) {
-            //Gate moving to long, without reaching a limit switch.
+            // Gate moving to long, without reaching a limit switch.
             if (this->moving_state && (millis() - this->moving_start > GATE_MOVING_TIME)) {
                 this->moving_state = false;
                 log("Timeout. Pubish open");
@@ -87,26 +87,26 @@ class Gate {
             }
         }
 
-        //Now opened
+        // Now opened
         if (curent_state_up == 1 && this->last_state_up == 0) {
             this->moving_state = false;
             publishState(client, "open");
         }
 
-        //Now closed
+        // Now closed
         if (curent_state_down == 1 && this->last_state_down == 0) {
             this->moving_state = false;
             publishState(client, "closed");
         }
 
-        //Now closing
+        // Now closing
         if (curent_state_up == 0 && this->last_state_up == 1) {
             this->moving_state = true;
             this->moving_start = millis();
             publishState(client, "closing");
         }
 
-        //Now opening
+        // Now opening
         if (curent_state_down == 0 && this->last_state_down == 1) {
             this->moving_state = true;
             this->moving_start = millis();
@@ -143,13 +143,13 @@ class Gate {
         Serial.println("Gate " + (String)this->id + ": " + text);
     }
 
-    void publishState(MQTTClient &client, String payload){
+    void publishState(MQTTClient &client, String payload) {
         client.publish(getMQTTPath("state"), payload, true, 0);
         log("MQTT Publish: " + payload);
     }
 
     void up() {
-        if(this->last_state_up == 1){
+        if (this->last_state_up == 1) {
             log("Gate already up. Ignoring...");
             return;
         }
@@ -159,7 +159,7 @@ class Gate {
     }
 
     void down() {
-        if(this->last_state_down == 1){
+        if (this->last_state_down == 1) {
             log("Gate already down. Ignoring...");
             return;
         }

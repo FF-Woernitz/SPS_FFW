@@ -6,8 +6,8 @@
 #include <main.h>
 
 #include <gate.cpp>
-#include <light_button.cpp>
 #include <input.cpp>
+#include <light_button.cpp>
 
 EthernetClient net;
 MQTTClient client;
@@ -24,10 +24,9 @@ Input input_light_inside_off("light_inside_off", INPUT_LIGHT_INSIDE_OFF);
 
 unsigned long lastConnectTry = 0;
 
-
 bool connect(bool initialConnect) {
     if (!client.connected()) {
-        if(!initialConnect && millis()-lastConnectTry > 30000){
+        if (!initialConnect && millis() - lastConnectTry > 30000) {
             return false;
         }
         lastConnectTry = millis();
@@ -57,7 +56,7 @@ bool connect(bool initialConnect) {
 void initConnect() {
     for (int i = 0; i < 10; i++) {
         Serial.println("Inital connection. Try " + (String)i + "/10");
-        if (connect(true)){
+        if (connect(true)) {
             break;
         }
     }
@@ -103,7 +102,7 @@ void setup() {
     Serial.begin(115200);
     Serial.println("Name: " + (String)DEVICENAME);
     Serial.println("Version: " + VERSION);
-    Serial.println("Builddate: " + (String) STR(BUILD_DATE));
+    Serial.println("Builddate: " + (String)STR(BUILD_DATE));
 
     Ethernet.begin(MAC, IPAddress(IP));
 
