@@ -2,15 +2,24 @@
 #include <Controllino.h>
 #include <Ethernet.h>
 #include <MQTT.h>
+#include <ModbusRtu.h>
+
+
 #include <constants.h>
 #include <main.h>
 
 #include <gate.cpp>
 #include <input.cpp>
+#include <output.cpp>
 #include <light_button.cpp>
+
+#define MasterModbusAdd 0
+#define RS485Serial 3
+
 
 EthernetClient net;
 MQTTClient client;
+
 Gate gate1(1, GATE_1_CONFIG);
 Gate gate2(2, GATE_2_CONFIG);
 Gate gate3(3, GATE_3_CONFIG);
@@ -22,7 +31,18 @@ LightButton light_outside("outside", LIGHT_OUTSIDE_CONFIG);
 Input input_light_inside_on("light_inside_on", INPUT_LIGHT_INSIDE_ON);
 Input input_light_inside_off("light_inside_off", INPUT_LIGHT_INSIDE_OFF);
 
+Output output_heating_front("heating_front", OUTPUT_HEATING_FRONT);
+Output output_heating_back("heating_back", OUTPUT_HEATING_BACK);
+
+Modbus ControllinoModbusMaster = Modbus(MasterModbusAdd, RS485Serial, 0);
+modbus_t ModbusQuery[4];
+modbus_t ModbusSetId;
+uint16_t ModbusSlaveRegisters[2];
+int poll = 0;
+int device = 0;
+
 unsigned long lastConnectTry = 0;
+unsigned long lasttimemodbus = 0;
 
 bool connect(bool initialConnect) {
     if (!client.connected()) {
@@ -76,6 +96,9 @@ void initMqtt() {
 
     input_light_inside_on.setupMQTT(client);
     input_light_inside_off.setupMQTT(client);
+
+    output_heating_front.setupMQTT(client);
+    output_heating_back.setupMQTT(client);
 }
 
 void messageReceived(String &topic, String &payload) {
@@ -99,7 +122,15 @@ void messageReceived(String &topic, String &payload) {
         gate5.onMessage(payload);
     else if (device == "light_outside")
         light_outside.onMessage(payload);
+    else if (device == "output_heating_front")
+        output_heating_front.onMessage(payload);
+    else if (device == "output_heating_back")
+        output_heating_back.onMessage(payload);
 }
+
+    void log(String text) {
+        Serial.println("MAIN: " + text);
+    }
 
 void setup() {
     Serial.begin(115200);
@@ -112,6 +143,9 @@ void setup() {
     client.begin(IPAddress(MQTT_IP), MQTT_PORT, net);
     client.onMessage(messageReceived);
 
+    ControllinoModbusMaster.begin( 9600 );
+    ControllinoModbusMaster.setTimeOut( 5000 );
+
     gate1.setup();
     gate2.setup();
     gate3.setup();
@@ -122,6 +156,22 @@ void setup() {
 
     input_light_inside_on.setup();
     input_light_inside_off.setup();
+
+    output_heating_front.setup();
+    output_heating_back.setup();
+
+    ModbusQuery[0].u8id = 10;
+    ModbusQuery[0].u8fct = 4;
+    ModbusQuery[0].u16RegAdd = 1;
+    ModbusQuery[0].u16CoilsNo = 2;
+    ModbusQuery[0].au16reg = ModbusSlaveRegisters;
+
+    ModbusQuery[1] = ModbusQuery[0];
+    ModbusQuery[1].u8id = 11;
+    ModbusQuery[2] = ModbusQuery[0];
+    ModbusQuery[2].u8id = 12;
+    ModbusQuery[3] = ModbusQuery[0];
+    ModbusQuery[3].u8id = 13;
 
     initConnect();
 }
@@ -139,4 +189,35 @@ void loop() {
 
     input_light_inside_on.loop(client);
     input_light_inside_off.loop(client);
+
+    output_heating_front.loop(client);
+    output_heating_back.loop(client);
+
+
+    //Modbus Start, needs to be moved to extra Class. I love C++
+    if (poll == 0){
+        if(device >= 4){
+            device = 0;
+        }
+        if(millis() - lasttimemodbus > 5000){
+            poll = 1;
+            lasttimemodbus = millis();
+        }
+    } else if (poll == 1){
+        ControllinoModbusMaster.query( ModbusQuery[device] );
+        poll = 2;
+    } else {
+        ControllinoModbusMaster.poll(); // check incoming messages
+        if (ControllinoModbusMaster.getState() == COM_IDLE) {
+            #ifdef DEBUG
+            log((String) "Temp " + device + ": " + (ModbusSlaveRegisters[0] / 10.0F) + "°C");
+            log((String) "Humd " + device + ": " + (ModbusSlaveRegisters[1] / 10.0F) + "%");
+            #endif
+            client.publish(String(DEVICENAME) + "/sensor" + (String)ModbusQuery[device].u8id  + "/temp", (String)(ModbusSlaveRegisters[0] / 10.0F), true, 0);
+            client.publish(String(DEVICENAME) + "/sensor" + (String)ModbusQuery[device].u8id  + "/humd", (String)(ModbusSlaveRegisters[1] / 10.0F), true, 0);
+
+            poll = 0;
+            device++;
+        }
+    }
 }
