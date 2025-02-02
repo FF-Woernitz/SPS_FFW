@@ -33,6 +33,7 @@ Input input_light_inside_off("light_inside_off", INPUT_LIGHT_INSIDE_OFF);
 
 Output output_heating_front("heating_front", OUTPUT_HEATING_FRONT);
 Output output_heating_back("heating_back", OUTPUT_HEATING_BACK);
+Output output_audio("audio", OUTPUT_AUDIO);
 
 Modbus ControllinoModbusMaster = Modbus(MasterModbusAdd, RS485Serial, 0);
 modbus_t ModbusQuery[4];
@@ -99,6 +100,7 @@ void initMqtt() {
 
     output_heating_front.setupMQTT(client);
     output_heating_back.setupMQTT(client);
+    output_audio.setupMQTT(client);
 }
 
 void messageReceived(String &topic, String &payload) {
@@ -126,6 +128,8 @@ void messageReceived(String &topic, String &payload) {
         output_heating_front.onMessage(payload);
     else if (device == "output_heating_back")
         output_heating_back.onMessage(payload);
+    else if (device == "output_audio")
+        output_audio.onMessage(payload);
 }
 
     void log(String text) {
@@ -159,6 +163,7 @@ void setup() {
 
     output_heating_front.setup();
     output_heating_back.setup();
+    output_audio.setup();
 
     ModbusQuery[0].u8id = 10;
     ModbusQuery[0].u8fct = 4;
@@ -172,6 +177,10 @@ void setup() {
     ModbusQuery[2].u8id = 12;
     ModbusQuery[3] = ModbusQuery[0];
     ModbusQuery[3].u8id = 13;
+    ModbusQuery[4] = ModbusQuery[0];
+    ModbusQuery[4].u8id = 14;
+    ModbusQuery[5] = ModbusQuery[0];
+    ModbusQuery[5].u8id = 15;
 
     initConnect();
 }
@@ -192,6 +201,7 @@ void loop() {
 
     output_heating_front.loop(client);
     output_heating_back.loop(client);
+    output_audio.loop(client);
 
 
     //Modbus Start, needs to be moved to extra Class. I love C++
