@@ -36,7 +36,8 @@ Output output_heating_back("heating_back", OUTPUT_HEATING_BACK);
 Output output_audio("audio", OUTPUT_AUDIO);
 
 Modbus ControllinoModbusMaster = Modbus(MasterModbusAdd, RS485Serial, 0);
-modbus_t ModbusQuery[4];
+const int MODBUS_DEVICE_COUNT = 6;
+modbus_t ModbusQuery[MODBUS_DEVICE_COUNT];
 modbus_t ModbusSetId;
 uint16_t ModbusSlaveRegisters[2];
 int poll = 0;
@@ -206,7 +207,7 @@ void loop() {
 
     //Modbus Start, needs to be moved to extra Class. I love C++
     if (poll == 0){
-        if(device >= 4){
+        if(device >= MODBUS_DEVICE_COUNT){
             device = 0;
         }
         if(millis() - lasttimemodbus > 5000){
