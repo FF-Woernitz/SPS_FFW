@@ -29,7 +29,7 @@ class Output {
         client.publish(getMQTTPath("cmd"), "-");
         client.subscribe(getMQTTPath("cmd"));
 
-        publishState(client, this->def ? "on" : "off");
+        publishState(client, (bool)digitalRead(this->pin) ? "on" : "off");
     }
 
     void loop(MQTTClient &client) {
